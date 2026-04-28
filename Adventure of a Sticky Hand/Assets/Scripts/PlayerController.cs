@@ -30,7 +30,6 @@ public class PlayerController : MonoBehaviour {
 
         // wallcheck
         Gizmos.DrawCube(transform.position + Mathf.Clamp(transform.localScale.x, -1, 1) * wallCheckDistance * transform.right, new Vector3(col.size.x, col.size.y, 0.01f));
-        // Gizmos.DrawCube(transform.position, Mathf.Clamp(transform.localScale.x, -1, 1) * wallCheckDistance * transform.right);
     }
 
     private void RunPlayerHorizontalMovement() {
@@ -42,6 +41,7 @@ public class PlayerController : MonoBehaviour {
             RaycastHit2D wallHit = WallCheck(-1);
 
             if(wallHit.collider == null) {
+                Debug.Log("adding force left");
                 rb.AddForce(transform.right * -1 * maxSpeed);            
             }
         } 
@@ -51,6 +51,7 @@ public class PlayerController : MonoBehaviour {
             RaycastHit2D wallHit = WallCheck(1);
 
             if(wallHit.collider == null) {
+                Debug.Log("adding force right");
                 rb.AddForce(transform.right * maxSpeed);
             }
         } 

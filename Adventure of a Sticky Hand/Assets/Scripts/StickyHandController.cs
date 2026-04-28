@@ -2,16 +2,17 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using Unity.VisualScripting;
+using UnityEngine.InputSystem;
 
-public class StickyHandController : MonoBehaviour
-{
+public enum HandBehaviour { Move, Aim }
+public class StickyHandController : MonoBehaviour {
     [Header("Movement")]
     [SerializeField] private Camera cam;
     [SerializeField] private LineRenderer arm;
     [SerializeField] private GameObject anchor; // local space
     [SerializeField] private float maxDistance;
     [SerializeField] private float maxSpeed;
-    private bool canMove;
+    private HandBehaviour behaviour;
     private Vector3 worldAnchor;
 
     [Header("Colliders")]
@@ -23,7 +24,7 @@ public class StickyHandController : MonoBehaviour
 
     // Start is called before the first frame update
     void Start() {
-        canMove = true;
+        behaviour = HandBehaviour.Move;
         touching = new Dictionary<int, GameObject>();
     }
 
@@ -33,14 +34,14 @@ public class StickyHandController : MonoBehaviour
     }
 
     void OnTriggerEnter2D(Collider2D col) {
-        if(col.gameObject.CompareTag("Item")) {
+        if (col.gameObject.CompareTag("Item")) {
             touching.Add(col.gameObject.GetInstanceID(), col.gameObject);
             Debug.Log($"can interact with {col.gameObject.name}");
         }
     }
 
     void OnTriggerExit2D(Collider2D col) {
-        if(col.gameObject.CompareTag("Item")) {
+        if (col.gameObject.CompareTag("Item")) {
             touching.Remove(col.gameObject.GetInstanceID());
             Debug.Log($"can NOT interact with {col.gameObject.name}");
         }
@@ -49,20 +50,21 @@ public class StickyHandController : MonoBehaviour
     // Update is called once per frame
     void Update() {
         worldAnchor = anchor.transform.position;
-        canMove = !Input.GetKey(KeyCode.LeftShift);
+        behaviour = (Input.GetKey(KeyCode.LeftShift)) ? HandBehaviour.Aim : HandBehaviour.Move;
 
-        if(canMove) {
+        if (behaviour == HandBehaviour.Move) {
             Move();
         }
+        MoveRotate();
         MoveClamp();
         UpdateArm();
 
-        if(Input.GetKeyDown(KeyCode.Mouse0)) {
+        if (Input.GetKeyDown(KeyCode.Mouse0)) {
             LClick();
         }
 
-        if(Input.GetKeyDown(KeyCode.Mouse1)) {
-            
+        if (Input.GetKeyDown(KeyCode.Mouse1)) {
+            RClick();
         }
     }
 
@@ -80,18 +82,20 @@ public class StickyHandController : MonoBehaviour
         Vector3 furthestAway = worldAnchor + direction * maxDistance; // don't move further than this from anchor
 
         float minX, maxX, minY, maxY;
-        if(direction.x >= 0) { // mouse is right of hand
+        if (direction.x >= 0) { // mouse is right of hand
             minX = worldAnchor.x;
             maxX = furthestAway.x;
-        } else { // mouse is left of hand
+        }
+        else { // mouse is left of hand
             minX = furthestAway.x;
             maxX = worldAnchor.x;
         }
 
-        if(direction.y >= 0) { // mouse above hand
+        if (direction.y >= 0) { // mouse above hand
             minY = worldAnchor.y;
             maxY = furthestAway.y;
-        } else { // mouse below hand
+        }
+        else { // mouse below hand
             minY = furthestAway.y;
             maxY = worldAnchor.y;
         }
@@ -99,10 +103,22 @@ public class StickyHandController : MonoBehaviour
         transform.position = new Vector3(Mathf.Clamp(transform.position.x, minX, maxX), Mathf.Clamp(transform.position.y, minY, maxY), transform.position.z);
     }
 
+    // TODO: FIX
+    private void MoveRotate() {
+        // Debug.Log("ROTATE");
+        Vector3 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
+
+        Quaternion rotation = Quaternion.LookRotation(
+            mousePos - transform.position,
+            transform.TransformDirection(Vector3.up)
+        );
+        transform.rotation = new Quaternion(0, 0, rotation.z, rotation.w);
+    }
+
     // update stick hand's arm
     private void UpdateArm() {
         arm.SetPositions(
-			new Vector3[] {
+            new Vector3[] {
                 worldAnchor,
                 transform.position
             }
@@ -111,37 +127,48 @@ public class StickyHandController : MonoBehaviour
 
     // LClick: trigger actuators, pickup items
     private void LClick() {
-        if(holding == null) {
+        if (holding == null) {
+            Debug.Log("LClick");
             List<GameObject> gameObjsInContact = new List<GameObject>(touching.Values);
             gameObjsInContact.Sort(CompareGameObjs);
 
-            if(gameObjsInContact.Count < 1) return;
+            if (gameObjsInContact.Count < 1) return;
 
             GameObject clickedObj = gameObjsInContact[0];
+            PickUp(clickedObj);
+        }
+    }
 
-            // pick up an item
-            if(clickedObj.CompareTag("Item")) {
-                holding = clickedObj;
+    private void PickUp(GameObject obj) {
+        if (obj.CompareTag("Item")) {
+            holding = obj;
 
-                // lock object to sticky hand
-                clickedObj.transform.SetParent(transform);
-                clickedObj.transform.localPosition = new Vector3(0,0,0);
+            // lock object to sticky hand
+            obj.transform.SetParent(transform);
+            obj.transform.localPosition = new Vector3(0.5f, 0, 0);
 
-                // stop held object from moving/colliding
-                clickedObj.GetComponent<Rigidbody2D>().isKinematic = true;
-                EventBus.Trigger(EventNames.DisableColliderEvent, clickedObj.GetComponent<Item>().allColliders);
-            }
+            Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
+
+            // stop held object from moving/colliding
+            rb.isKinematic = true;
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            rb.rotation = 0f;
+            EventBus.Trigger(EventNames.DisableColliderEvent, obj.GetComponent<Item>().allColliders);
         }
     }
 
     // RClick: drop items
     private void RClick() {
-        if(holding != null) {
+        if (holding != null) {
+            Debug.Log("RClick");
             GameObject obj = holding;
 
             holding = null;
             obj.transform.SetParent(null);
-            // obj.GetComponent<Item>().EnableAllColliders();
+
+            obj.GetComponent<Rigidbody2D>().isKinematic = false;
+            EventBus.Trigger(EventNames.EnableColliderEvent, obj.GetComponent<Item>().allColliders);
         }
     }
 
