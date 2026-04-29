@@ -1,8 +1,7 @@
 using Unity.VisualScripting;
 using UnityEngine;
 
-public static class EventNames
-{
+public static class EventNames {
 	public static string DisableColliderEvent = "DisableColliderEvent";
 	public static string EnableColliderEvent = "EnableColliderEvent";
 }

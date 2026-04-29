@@ -1,17 +1,24 @@
 using System;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : Character {
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private CapsuleCollider2D col;
     [SerializeField] private Animator animator;
+
+    [Header("Movement")]
     [SerializeField] private float maxSpeed;
     [SerializeField] private float jumpPower;
+    private bool canJump;
 
+    [Header("Raycast")]
     [SerializeField] private LayerMask groundLayers;
     [SerializeField] private float groundCheckDistance;
     [SerializeField] private float wallCheckDistance;
-    private bool canJump;
+
+    [Header("Pain")] // me too
+    [SerializeField] private LayerMask groundPainLayer;
+    public event Action playerDies;
 
     // Start is called before the first frame update
     void Start() {
@@ -20,8 +27,7 @@ public class PlayerController : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        RunPlayerHorizontalMovement();
-        RunPlayerVerticalMovement();
+        
     }
 
     void OnDrawGizmos() {
@@ -32,7 +38,7 @@ public class PlayerController : MonoBehaviour {
         Gizmos.DrawCube(transform.position + Mathf.Clamp(transform.localScale.x, -1, 1) * wallCheckDistance * transform.right, new Vector3(col.size.x, col.size.y, 0.01f));
     }
 
-    private void RunPlayerHorizontalMovement() {
+    public void RunPlayerHorizontalMovement() {
         bool walking = false;
 
         if(Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) {
@@ -41,7 +47,7 @@ public class PlayerController : MonoBehaviour {
             RaycastHit2D wallHit = WallCheck(-1);
 
             if(wallHit.collider == null) {
-                Debug.Log("adding force left");
+                // Debug.Log("adding force left");
                 rb.AddForce(transform.right * -1 * maxSpeed);            
             }
         } 
@@ -51,7 +57,7 @@ public class PlayerController : MonoBehaviour {
             RaycastHit2D wallHit = WallCheck(1);
 
             if(wallHit.collider == null) {
-                Debug.Log("adding force right");
+                // Debug.Log("adding force right");
                 rb.AddForce(transform.right * maxSpeed);
             }
         } 
@@ -60,7 +66,7 @@ public class PlayerController : MonoBehaviour {
         animator.SetBool("walking", walking);
     }
 
-    private void RunPlayerVerticalMovement() {
+    public void RunPlayerVerticalMovement() {
         RaycastHit2D groundHit = groundCheck();
 
         if(canJump && Input.GetKeyDown(KeyCode.Space)) {
@@ -85,5 +91,19 @@ public class PlayerController : MonoBehaviour {
         RaycastHit2D boxHit = Physics2D.BoxCast(transform.position, col.size, 0f, direction * transform.right, wallCheckDistance, groundLayers);
 
         return boxHit;
+    }
+
+    private void OnCollisionEnter2D(Collision2D col) {
+        if(col.gameObject.CompareTag("PainGround")) {
+            TakeDamage(9999); // TODO: change this lol
+        }
+    }
+
+    protected override void Die() {
+        // TODO REFACTOR THIS SH*
+        playerDies?.Invoke();
+    
+        // rb.freezeRotation = false;
+        // rb.excludeLayers = LayerMask.;
     }
 }
