@@ -1,14 +1,18 @@
 using System;
+using TMPro;
 using UnityEngine;
 
 public class PlayerController : Character {
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private CapsuleCollider2D col;
     [SerializeField] private Animator animator;
+    [SerializeField] private TMP_Text debugText;
 
     [Header("Movement")]
     [SerializeField] private float maxSpeed;
     [SerializeField] private float jumpPower;
+    private int horizDir;
+    private bool jumpPressed;
     private bool canJump;
 
     [Header("Raycast")]
@@ -27,7 +31,7 @@ public class PlayerController : Character {
 
     // Update is called once per frame
     void Update() {
-        
+        DebugText();
     }
 
     void OnDrawGizmos() {
@@ -38,29 +42,34 @@ public class PlayerController : Character {
         Gizmos.DrawCube(transform.position + Mathf.Clamp(transform.localScale.x, -1, 1) * wallCheckDistance * transform.right, new Vector3(col.size.x, col.size.y, 0.01f));
     }
 
+    public void GetInputs() {
+        horizDir = 0;
+        // jumpPressed = false;
+
+        if(Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) {
+            horizDir--;
+        }
+        if(Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) {
+            horizDir++;
+        }
+
+        if(Input.GetKeyDown(KeyCode.Space)) {
+            jumpPressed = true;
+        }
+    }
+
     public void RunPlayerHorizontalMovement() {
         bool walking = false;
 
-        if(Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) {
+        if(horizDir != 0) {
             walking = true;
-            transform.localScale = new Vector3(-1 * Math.Abs(transform.localScale.x), transform.localScale.y, 1);
-            RaycastHit2D wallHit = WallCheck(-1);
-
+            transform.localScale = new Vector3(horizDir * Math.Abs(transform.localScale.x), transform.localScale.y, 1);
+            
+            RaycastHit2D wallHit = WallCheck(horizDir);
             if(wallHit.collider == null) {
-                // Debug.Log("adding force left");
-                rb.AddForce(transform.right * -1 * maxSpeed);            
+                rb.AddForce(transform.right * horizDir * maxSpeed, ForceMode2D.Impulse);            
             }
-        } 
-        if(Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) {
-            walking = true;
-            transform.localScale = new Vector3(Math.Abs(transform.localScale.x), transform.localScale.y, 1);
-            RaycastHit2D wallHit = WallCheck(1);
-
-            if(wallHit.collider == null) {
-                // Debug.Log("adding force right");
-                rb.AddForce(transform.right * maxSpeed);
-            }
-        } 
+        }
 
         rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -1*maxSpeed, maxSpeed), rb.velocity.y);   
         animator.SetBool("walking", walking);
@@ -69,9 +78,9 @@ public class PlayerController : Character {
     public void RunPlayerVerticalMovement() {
         RaycastHit2D groundHit = groundCheck();
 
-        if(canJump && Input.GetKeyDown(KeyCode.Space)) {
+        if(jumpPressed && canJump) {
             rb.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
-            canJump = false;
+            jumpPressed = false;
         } else if(Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) {
             // TODO: platform drop logic
         }
@@ -101,9 +110,14 @@ public class PlayerController : Character {
 
     protected override void Die() {
         // TODO REFACTOR THIS SH*
+        Debug.Log("Player die invoked");
         playerDies?.Invoke();
     
         // rb.freezeRotation = false;
         // rb.excludeLayers = LayerMask.;
+    }
+
+    private void DebugText() {
+        debugText.text = $"canJump: {canJump}\njumpPressed: {jumpPressed}";
     }
 }

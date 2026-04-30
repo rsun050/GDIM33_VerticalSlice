@@ -134,7 +134,7 @@ CapsuleCollider2D:
     m_Bits: 192
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 63
+    m_Bits: 3135
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
@@ -166,9 +166,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ee22e2f11b4e1e46930dfe2f32692c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHP: 0
   rb: {fileID: 5520098992676106320}
   col: {fileID: 3342570384531569481}
   animator: {fileID: 5999977937900911095}
+  debugText: {fileID: 0}
   maxSpeed: 7
   jumpPower: 19
   groundLayers:
@@ -176,6 +178,9 @@ MonoBehaviour:
     m_Bits: 192
   groundCheckDistance: 1.2
   wallCheckDistance: 0.3
+  groundPainLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!95 &5999977937900911095
 Animator:
   serializedVersion: 5
