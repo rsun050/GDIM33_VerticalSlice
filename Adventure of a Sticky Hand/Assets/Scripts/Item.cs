@@ -19,7 +19,6 @@ public class Item : MonoBehaviour {
     [field: SerializeField] public ItemState itemState { get; protected set; }
 
     void Start() {
-        Debug.Log($"{gameObject.name}: all colliders: {allColliders[0].GetInstanceID()} + {allColliders[1].GetInstanceID()} + {allColliders[2].GetInstanceID()}");
     }
 
     void Update() {
