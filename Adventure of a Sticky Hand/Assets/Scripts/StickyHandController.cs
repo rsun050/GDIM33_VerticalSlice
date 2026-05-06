@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Interactions;
@@ -13,21 +14,21 @@ public class StickyHandController : MonoBehaviour {
     [SerializeField] private float maxDistance;
     [SerializeField] private float maxSpeed;
     private HandBehaviour behaviour;
-    private Vector3 worldAnchor;
+    [field: SerializeField] public Vector3 worldAnchor { get; private set; }
 
-    [Header("Objects")]
-    [SerializeField] GameObject aimLine;
+
     public GameObject holding { get; private set; }
-
+    [field: SerializeField] public GameObject aimLine { get; private set; }
 
     [Header("Colliders")]
-    [SerializeField] Collider2D col;
-    private Dictionary<Collider2D, GameObject> touching;
+    // [SerializeField] Collider2D col;
+    public Dictionary<Collider2D, GameObject> touching;
 
     [Header("")]
     [SerializeField] GameObject handAnchor;
 
     [SerializeField] private TMP_Text debug;
+    [field: SerializeField] public float throwForce { get; private set; }
 
     // Start is called before the first frame update
     void Start() {
@@ -38,29 +39,18 @@ public class StickyHandController : MonoBehaviour {
     void OnDrawGizmos() {
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(worldAnchor, maxDistance);
-    }
 
-    void OnTriggerEnter2D(Collider2D col) {
-        if (col.gameObject.CompareTag("Item")) {
-            touching.Add(col, col.gameObject.transform.parent.gameObject);
-            // Debug.Log($"can interact with {col.gameObject.transform.parent.gameObject.name}");
-        }
-    }
-
-    void OnTriggerExit2D(Collider2D col) {
-        if (col.gameObject.CompareTag("Item")) {
-            touching.Remove(col);
-            // Debug.Log($"can NOT interact with {col.gameObject.transform.parent.gameObject.name}");
-        }
+        Gizmos.DrawRay(transform.position, transform.right * 2);
     }
 
     // Update is called once per frame
     void Update() {
         worldAnchor = armAnchor.transform.position;
 
-        if(Input.GetKeyDown(KeyCode.LeftShift)) {
+        if (Input.GetKeyDown(KeyCode.LeftShift)) {
             StartAiming();
-        } else if(Input.GetKeyUp(KeyCode.LeftShift)) {
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftShift)) {
             StopAiming();
         }
 
@@ -83,7 +73,6 @@ public class StickyHandController : MonoBehaviour {
     private void Move() {
         // https://www.youtube.com/watch?v=2DHy_l4Ffe0
         transform.position = Vector2.MoveTowards(transform.position, cam.ScreenToWorldPoint(Input.mousePosition), maxSpeed * Time.deltaTime);
-        handAnchor.transform.position = transform.position;
     }
 
     // clamp to anchor
@@ -121,12 +110,13 @@ public class StickyHandController : MonoBehaviour {
         // https://discussions.unity.com/t/lookat-2d-equivalent/88118
         Quaternion rotation;
 
-        if(behaviour == HandBehaviour.Move) {
+        if (behaviour == HandBehaviour.Move) {
             rotation = Quaternion.LookRotation(
                 worldAnchor - transform.position,
                 transform.TransformDirection(Vector3.up)
             );
-        } else { // aim
+        }
+        else { // aim
             Vector3 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
 
             rotation = Quaternion.LookRotation(
@@ -155,13 +145,29 @@ public class StickyHandController : MonoBehaviour {
 
             gameObjsInContact.Sort(CompareGameObjs);
             PickUp(touching[gameObjsInContact[0]]);
-        } else { 
+        }
+        else {
             // attempt use
             // use cases
-            // ball, block, empty gun: do nothing
+            // ball, block, empty gun: throw it
             // loaded gun: fire
             // key: attempt open door
-            holding.GetComponent<Item>().Use();
+            switch(behaviour) {
+                case HandBehaviour.Move:                
+                    holding.GetComponent<Item>().Use();
+                    break;
+                case HandBehaviour.Aim:
+                    if(holding.GetComponent<Gun>() != null) {
+                        holding.GetComponent<Gun>().Use();
+                    } else { // throw that shi
+                        Vector3 throwForceVec = throwForce * aimLine.GetComponent<AimDirection>().getDir();
+                        Debug.Log($"throwing w/ force {throwForceVec}");
+
+                        GameObject obj = Drop();
+                        obj.GetComponent<Item>().Throw(throwForceVec);
+                    }
+                    break;
+            }
         }
     }
 
@@ -178,15 +184,17 @@ public class StickyHandController : MonoBehaviour {
     private void StartAiming() {
         behaviour = HandBehaviour.Aim;
         aimLine.SetActive(true);
-        if(holding != null) { // reparent held item so it rotates with hand
+        if (holding != null) { // reparent held item so it rotates with hand
+            holding.transform.rotation = Quaternion.identity;
             holding.transform.parent = transform;
+            // holding.transform.localPosition = Vector3.zero;
         }
     }
 
     private void StopAiming() {
         behaviour = HandBehaviour.Move;
         aimLine.SetActive(false);
-        if(holding != null) { // unparent held item so it doesn't rotate with hand
+        if (holding != null) { // unparent held item so it doesn't rotate with hand
             holding.transform.parent = handAnchor.transform;
             holding.GetComponent<Item>().PickUp(); // reset the item's position back to handanchor? it's necessary to fix bug of item pos desyncing from hand when moving around while aiming LOL.
             holding.transform.rotation = Quaternion.identity; // reset its rotation too
@@ -196,13 +204,18 @@ public class StickyHandController : MonoBehaviour {
     // RClick: drop items
     private void RClick() {
         if (holding != null) {
-            GameObject obj = holding;
-
-            holding = null;
-            obj.transform.SetParent(null);
-
-            obj.GetComponent<Item>().Drop();
+            Drop();
         }
+    }
+
+    private GameObject Drop() {
+        GameObject obj = holding;
+
+        holding = null;
+        obj.transform.SetParent(null);
+
+        obj.GetComponent<Item>().Drop();
+        return obj;
     }
 
     // custom comparator: want closest gameobj
@@ -213,9 +226,10 @@ public class StickyHandController : MonoBehaviour {
         float c1dist = (c1pos - transform.position).magnitude;
         float c2dist = (c2pos - transform.position).magnitude;
 
-        if(c1dist <= c2dist) {
+        if (c1dist <= c2dist) {
             return -1;
-        } else {
+        }
+        else {
             return 1;
         }
     }

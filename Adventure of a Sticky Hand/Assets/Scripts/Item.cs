@@ -17,18 +17,19 @@ public class Item : MonoBehaviour {
 
     [field: SerializeField] public ItemState itemState { get; protected set; }
 
+
     void Start() {
     }
 
     void Update() {
-        if(transform.position.y < GameController.Instance.KillLevel) {
+        if (transform.position.y < GameController.Instance.KillLevel) {
             Destroy(gameObject);
         }
     }
 
     // stop held object from falling/colliding
     public virtual void PickUp() {
-        transform.localPosition = new Vector3(holdOffset.x, holdOffset.y, 0);
+        transform.localPosition = new Vector3(holdOffset.x/* + 0.3f*/, holdOffset.y, 0);
 
         itemState = ItemState.Held;
 
@@ -36,8 +37,8 @@ public class Item : MonoBehaviour {
         rb.velocity = Vector2.zero;
         rb.angularVelocity = 0f;
         rb.rotation = 0f;
-        
-        foreach(Collider2D col in allColliders) {
+
+        foreach (Collider2D col in allColliders) {
             col.enabled = false;
         }
     }
@@ -48,9 +49,17 @@ public class Item : MonoBehaviour {
 
         rb.isKinematic = false;
 
-        foreach(Collider2D col in allColliders) {
+        foreach (Collider2D col in allColliders) {
             col.enabled = true;
         }
+    }
+
+    public virtual void Throw(Vector3 dir) {
+        this.Drop();
+
+        // apply some violent force to throw it
+        // rb.AddForce(dir, ForceMode2D.Force);
+        rb.velocity = dir;
     }
 
     public virtual void Use() {

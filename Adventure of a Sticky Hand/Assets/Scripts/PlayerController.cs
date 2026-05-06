@@ -29,7 +29,7 @@ public class PlayerController : Character {
 
     // Start is called before the first frame update
     void Start() {
-        
+
     }
 
     // Update is called once per frame
@@ -50,14 +50,14 @@ public class PlayerController : Character {
         horizDir = 0;
         // jumpPressed = false;
 
-        if(Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) {
+        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A)) {
             horizDir--;
         }
-        if(Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) {
+        if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D)) {
             horizDir++;
         }
 
-        if(Input.GetKeyDown(KeyCode.Space)) {
+        if (Input.GetKeyDown(KeyCode.Space)) {
             jumpPressed = true;
         }
     }
@@ -66,28 +66,29 @@ public class PlayerController : Character {
         bool walking = false;
         float speed = (canJump) ? maxSpeed : airSpeed;
 
-        if(horizDir != 0) {
+        if (horizDir != 0) {
             walking = true;
 
             transform.localScale = new Vector3(horizDir * Math.Abs(transform.localScale.x), transform.localScale.y, 1);
-            
+
             RaycastHit2D wallHit = WallCheck(horizDir);
-            if(wallHit.collider == null) {
-                rb.AddForce(transform.right * horizDir * speed, ForceMode2D.Impulse);            
+            if (wallHit.collider == null) {
+                rb.AddForce(transform.right * horizDir * speed, ForceMode2D.Impulse);
             }
         }
 
-        rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -1*speed, speed), rb.velocity.y);   
+        rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -1 * speed, speed), rb.velocity.y);
         animator.SetBool("walking", walking);
     }
 
     public void RunPlayerVerticalMovement() {
         RaycastHit2D groundHit = groundCheck();
 
-        if(jumpPressed && canJump) {
+        if (jumpPressed && canJump) {
             rb.AddForce(transform.up * jumpPower, ForceMode2D.Impulse);
             jumpPressed = false;
-        } else if(Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) {
+        }
+        else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) {
             // TODO: platform drop logic
         }
 
@@ -109,7 +110,7 @@ public class PlayerController : Character {
     }
 
     private void OnCollisionEnter2D(Collision2D col) {
-        if(col.gameObject.CompareTag("PainGround")) {
+        if (col.gameObject.CompareTag("PainGround")) {
             TakeDamage(9999); // TODO: change this lol
         }
     }
@@ -118,7 +119,7 @@ public class PlayerController : Character {
         // TODO REFACTOR THIS SH*
         Debug.Log("Player die invoked");
         playerDies?.Invoke();
-    
+
         // rb.freezeRotation = false;
         // rb.excludeLayers = LayerMask.;
     }

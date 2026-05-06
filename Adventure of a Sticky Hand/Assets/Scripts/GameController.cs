@@ -11,9 +11,9 @@ public class GameController : MonoBehaviour {
 	[SerializeField] private GameObject spawnPoint;
 
 	public void Awake() {
-		Cursor.visible = false;
+		// Cursor.visible = false;
 
-		if(Instance != null && Instance != this) {
+		if (Instance != null && Instance != this) {
 			Destroy(this);
 			return;
 		}

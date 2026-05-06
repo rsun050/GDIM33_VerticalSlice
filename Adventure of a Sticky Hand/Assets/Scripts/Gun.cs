@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+// note to self it would be really funny if we had gun reloading
 public class Gun : Item {
 	[SerializeField] private SpriteRenderer sprite;
 	[SerializeField] private GameObject bulletPrefab;
@@ -11,6 +13,7 @@ public class Gun : Item {
 	[SerializeField] private float maxAmmo = -1;
 	[SerializeField] private float remainingAmmo = -1;
 	[SerializeField] private float firesAmount = 1;
+	public int dir { get; private set; }
 
 	void OnDrawGizmos() {
 		Gizmos.color = Color.red;
@@ -21,19 +24,16 @@ public class Gun : Item {
 	}
 
 	private void LateUpdate() {
+		dir = (transform.position.x < GameController.Instance.Player.transform.position.x) ? -1 : 1;
+
 		switch (itemState) {
 			case ItemState.Held:
-				Vector3 pos = transform.localPosition;
-				if (transform.position.x < GameController.Instance.Player.transform.position.x) {
-					pos.x = Mathf.Abs(pos.x) * -1;
-					sprite.flipX = true;
-				}
-				else {
-					pos.x = Mathf.Abs(pos.x);
-					sprite.flipX = false;
-				}
+				sprite.flipX = dir != 1;
 
+				Vector3 pos = transform.localPosition;
+				pos.x = Mathf.Abs(pos.x) * dir;
 				transform.localPosition = pos;
+
 				break;
 		}
 	}
@@ -59,7 +59,6 @@ public class Gun : Item {
 		if (maxAmmo == -1 || remainingAmmo >= firesAmount) {
 			for (int i = 0; i < firesAmount; i++) {
 				GameObject bullet = Instantiate(bulletPrefab, transform);
-				bullet.transform.parent = null;
 				bullet.SetActive(true);
 
 				remainingAmmo--;
