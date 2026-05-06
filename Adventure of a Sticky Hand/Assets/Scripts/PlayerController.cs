@@ -1,5 +1,6 @@
 using System;
 using TMPro;
+using UnityEditor.EditorTools;
 using UnityEngine;
 
 public class PlayerController : Character {
@@ -10,6 +11,8 @@ public class PlayerController : Character {
 
     [Header("Movement")]
     [SerializeField] private float maxSpeed;
+    [Tooltip("Airspeed should probably be lower than maxspeed. lol")]
+    [SerializeField] private float airSpeed;
     [SerializeField] private float jumpPower;
     private int horizDir;
     private bool jumpPressed;
@@ -30,7 +33,8 @@ public class PlayerController : Character {
     }
 
     // Update is called once per frame
-    void Update() {
+    new void Update() {
+        base.Update();
         DebugText();
     }
 
@@ -39,7 +43,7 @@ public class PlayerController : Character {
         Gizmos.DrawRay(transform.position, -1 * groundCheckDistance * transform.up);
 
         // wallcheck
-        Gizmos.DrawCube(transform.position + Mathf.Clamp(transform.localScale.x, -1, 1) * wallCheckDistance * transform.right, new Vector3(col.size.x, col.size.y, 0.01f));
+        // Gizmos.DrawCube(transform.position + Mathf.Clamp(transform.localScale.x, -1, 1) * wallCheckDistance * transform.right, new Vector3(col.size.x, col.size.y, 0.01f));
     }
 
     public void GetInputs() {
@@ -60,18 +64,20 @@ public class PlayerController : Character {
 
     public void RunPlayerHorizontalMovement() {
         bool walking = false;
+        float speed = (canJump) ? maxSpeed : airSpeed;
 
         if(horizDir != 0) {
             walking = true;
+
             transform.localScale = new Vector3(horizDir * Math.Abs(transform.localScale.x), transform.localScale.y, 1);
             
             RaycastHit2D wallHit = WallCheck(horizDir);
             if(wallHit.collider == null) {
-                rb.AddForce(transform.right * horizDir * maxSpeed, ForceMode2D.Impulse);            
+                rb.AddForce(transform.right * horizDir * speed, ForceMode2D.Impulse);            
             }
         }
 
-        rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -1*maxSpeed, maxSpeed), rb.velocity.y);   
+        rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -1*speed, speed), rb.velocity.y);   
         animator.SetBool("walking", walking);
     }
 
@@ -118,6 +124,6 @@ public class PlayerController : Character {
     }
 
     private void DebugText() {
-        debugText.text = $"canJump: {canJump}\njumpPressed: {jumpPressed}";
+        debugText.text = $"canJump: {canJump}\njumpPressed: {jumpPressed}\nspd: {rb.velocity}";
     }
 }

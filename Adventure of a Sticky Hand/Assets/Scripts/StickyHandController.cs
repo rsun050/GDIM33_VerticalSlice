@@ -188,6 +188,7 @@ public class StickyHandController : MonoBehaviour {
         aimLine.SetActive(false);
         if(holding != null) { // unparent held item so it doesn't rotate with hand
             holding.transform.parent = handAnchor.transform;
+            holding.GetComponent<Item>().PickUp(); // reset the item's position back to handanchor? it's necessary to fix bug of item pos desyncing from hand when moving around while aiming LOL.
             holding.transform.rotation = Quaternion.identity; // reset its rotation too
         }
     }

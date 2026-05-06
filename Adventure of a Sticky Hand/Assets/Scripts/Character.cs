@@ -4,7 +4,7 @@ public abstract class Character : MonoBehaviour {
 	[SerializeField] protected float maxHP;
 	protected float remHP;
 
-	private void Update() {
+	protected void Update() {
 		if(transform.position.y < GameController.Instance.KillLevel) {
             Die();
         }

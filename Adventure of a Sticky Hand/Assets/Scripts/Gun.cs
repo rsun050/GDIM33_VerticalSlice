@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Gun : Item {
+	[SerializeField] private SpriteRenderer sprite;
 	[SerializeField] private GameObject bulletPrefab;
 
 	// "essentially" infinite... unless you're gonna fire like... what, some quintillion bullets? idk
@@ -11,6 +12,11 @@ public class Gun : Item {
 	[SerializeField] private float remainingAmmo = -1;
 	[SerializeField] private float firesAmount = 1;
 
+	void OnDrawGizmos() {
+		Gizmos.color = Color.red;
+		Gizmos.DrawRay(transform.position, transform.right * 10);
+	}
+
 	private void Start() {
 	}
 
@@ -18,19 +24,16 @@ public class Gun : Item {
 		switch (itemState) {
 			case ItemState.Held:
 				Vector3 pos = transform.localPosition;
-				Vector3 localScale = transform.localScale;
-
 				if (transform.position.x < GameController.Instance.Player.transform.position.x) {
 					pos.x = Mathf.Abs(pos.x) * -1;
-					localScale.x = Mathf.Abs(localScale.x) * -1;
+					sprite.flipX = true;
 				}
 				else {
 					pos.x = Mathf.Abs(pos.x);
-					localScale.x = Mathf.Abs(localScale.x);
+					sprite.flipX = false;
 				}
 
 				transform.localPosition = pos;
-				transform.localScale = localScale;
 				break;
 		}
 	}

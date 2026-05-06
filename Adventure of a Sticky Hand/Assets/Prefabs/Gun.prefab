@@ -247,6 +247,7 @@ MonoBehaviour:
   - {fileID: 826077647991712014}
   rb: {fileID: 1193366115728750082}
   <itemState>k__BackingField: 0
+  sprite: {fileID: 2608970297744295685}
   bulletPrefab: {fileID: 6783600786969641606}
   maxAmmo: -1
   remainingAmmo: -1
