@@ -118,6 +118,7 @@ public class StickyHandController : MonoBehaviour {
         }
         else { // aim
             Vector3 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
+            mousePos.z = 0;
 
             rotation = Quaternion.LookRotation(
                 transform.position - mousePos,
@@ -194,6 +195,8 @@ public class StickyHandController : MonoBehaviour {
     private void StopAiming() {
         behaviour = HandBehaviour.Move;
         aimLine.SetActive(false);
+        // transform.rotation = Quaternion.identity;
+
         if (holding != null) { // unparent held item so it doesn't rotate with hand
             holding.transform.parent = handAnchor.transform;
             holding.GetComponent<Item>().PickUp(); // reset the item's position back to handanchor? it's necessary to fix bug of item pos desyncing from hand when moving around while aiming LOL.
