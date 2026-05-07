@@ -105,27 +105,24 @@ public class StickyHandController : MonoBehaviour {
         transform.position = new Vector3(Mathf.Clamp(transform.position.x, minX, maxX), Mathf.Clamp(transform.position.y, minY, maxY), transform.position.z);
     }
 
-    // TODO: FIX
     private void MoveRotate() {
         // https://discussions.unity.com/t/lookat-2d-equivalent/88118
         Quaternion rotation;
+        Vector3 otherPoint;
 
         if (behaviour == HandBehaviour.Move) {
-            rotation = Quaternion.LookRotation(
-                worldAnchor - transform.position,
-                transform.TransformDirection(Vector3.up)
-            );
+            otherPoint = worldAnchor;
         }
         else { // aim
             Vector3 mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
             mousePos.z = 0;
-
-            rotation = Quaternion.LookRotation(
-                transform.position - mousePos,
-                transform.TransformDirection(Vector3.up)
-            );
+            otherPoint = mousePos;
         }
-        transform.rotation = new Quaternion(0, 0, rotation.z, rotation.w);
+
+        Vector2 dir = transform.position - otherPoint;
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        rotation = Quaternion.Euler(0, 0, angle);
+        transform.rotation = rotation;
     }
 
     // update stick hand's arm
