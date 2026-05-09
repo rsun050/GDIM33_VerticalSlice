@@ -30,6 +30,7 @@ public class Item : MonoBehaviour {
     // stop held object from falling/colliding
     public virtual void PickUp() {
         transform.localPosition = new Vector3(holdOffset.x/* + 0.3f*/, holdOffset.y, 0);
+        transform.rotation = Quaternion.identity;
 
         itemState = ItemState.Held;
 
