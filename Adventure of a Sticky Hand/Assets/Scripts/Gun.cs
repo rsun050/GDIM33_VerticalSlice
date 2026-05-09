@@ -66,7 +66,7 @@ public class Gun : Item {
 		}
 		SetAmmoUI();
 	}
-
+	
 	public void SetAmmoUI() {
 		if (maxAmmo == -1) {
 			UIController.Instance.ammoUI.text = $"Ammunition: infinite";

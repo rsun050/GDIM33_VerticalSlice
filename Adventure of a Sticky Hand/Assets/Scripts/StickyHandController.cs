@@ -185,8 +185,9 @@ public class StickyHandController : MonoBehaviour {
         if (holding != null) { // reparent held item so it rotates with hand
             holding.transform.rotation = Quaternion.identity;
             holding.transform.parent = transform;
-            // holding.transform.localPosition = Vector3.zero;
         }
+
+        holding.GetComponent<Item>().Aim();
     }
 
     private void StopAiming() {
