@@ -166,14 +166,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ee22e2f11b4e1e46930dfe2f32692c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 0
   rb: {fileID: 5520098992676106320}
-  col: {fileID: 3342570384531569481}
   animator: {fileID: 5999977937900911095}
+  sprite: {fileID: 8513189489633032674}
+  maxHP: 3
+  col: {fileID: 3342570384531569481}
   debugText: {fileID: 0}
   maxSpeed: 6.5
   airSpeed: 5.5
-  jumpPower: 20
+  jumpPower: 15
   groundLayers:
     serializedVersion: 2
     m_Bits: 192

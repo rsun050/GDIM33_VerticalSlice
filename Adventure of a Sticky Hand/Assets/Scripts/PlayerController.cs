@@ -1,12 +1,9 @@
 using System;
 using TMPro;
-using UnityEditor.EditorTools;
 using UnityEngine;
 
 public class PlayerController : Character {
-    [SerializeField] private Rigidbody2D rb;
     [SerializeField] private CapsuleCollider2D col;
-    [SerializeField] private Animator animator;
     [SerializeField] private TMP_Text debugText;
 
     [Header("Movement")]

@@ -1,6 +1,12 @@
 using UnityEngine;
 
 public abstract class Character : MonoBehaviour {
+	[Header("Components")]
+    [SerializeField] protected Rigidbody2D rb;
+	[SerializeField] protected Animator animator;
+    [SerializeField] protected SpriteRenderer sprite;
+
+	[Header("")]
 	[SerializeField] protected float maxHP;
 	protected float remHP;
 
