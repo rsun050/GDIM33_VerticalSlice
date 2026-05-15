@@ -11,6 +11,6 @@ public class Box : Item {
 
     // Update is called once per frame
     void Update() {
-        effector.rotationalOffset = -transform.eulerAngles.z;
+        // effector.rotationalOffset = -transform.eulerAngles.z;
     }
 }

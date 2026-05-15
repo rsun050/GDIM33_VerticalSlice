@@ -137,12 +137,13 @@ public class StickyHandController : MonoBehaviour {
 
     // LClick: trigger actuators, pickup items
     private void LClick() {
-        if (holding == null) { // attempt pickup
+        if (holding == null) { // attempt pickup/interact
             List<Collider2D> gameObjsInContact = new List<Collider2D>(touching.Keys);
+            Debug.Log($"LCLICK: there are {gameObjsInContact.Count} items to interact w/");
             if (gameObjsInContact.Count < 1) return;
 
             gameObjsInContact.Sort(CompareGameObjs);
-            PickUp(touching[gameObjsInContact[0]]);
+            Interact(touching[gameObjsInContact[0]]);
         }
         else {
             // attempt use
@@ -169,15 +170,26 @@ public class StickyHandController : MonoBehaviour {
         }
     }
 
-    private void PickUp(GameObject obj) {
-        if (obj.CompareTag("Item")) {
-            holding = obj;
-            obj.GetComponent<Item>().itemConsumed += ItemWasConsumed;
-
-            // lock object to sticky hand
-            obj.transform.parent = handAnchor.transform;
-            obj.GetComponent<Item>().PickUp();
+    private void Interact(GameObject obj) {
+        if(obj.CompareTag("Item")) {
+            PickUp(obj);
+        } else if(obj.CompareTag("Clickable")) {
+            Trigger(obj);
         }
+    }
+
+    private void PickUp(GameObject obj) {
+        holding = obj;
+        obj.GetComponent<Item>().itemConsumed += ItemWasConsumed;
+
+        // lock object to sticky hand
+        obj.transform.parent = handAnchor.transform;
+        obj.GetComponent<Item>().PickUp();
+    }
+
+    private void Trigger(GameObject obj) {
+        // Debug.Log("triggering smth");
+        obj.GetComponent<Actuator>().Trigger();
     }
 
     private void ItemWasConsumed() {

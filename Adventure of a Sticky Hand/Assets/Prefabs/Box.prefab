@@ -30,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 6, y: 1.5, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7899912257450551245}
@@ -114,7 +114,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1
-  m_Constraints: 4
+  m_Constraints: 0
 --- !u!61 &1964240996731998136
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -176,7 +176,6 @@ MonoBehaviour:
   col: {fileID: 1964240996731998136}
   <allColliders>k__BackingField:
   - {fileID: 1964240996731998136}
-  - {fileID: 0}
   - {fileID: 1698887601100146494}
   rb: {fileID: 5466435933171126294}
   <itemState>k__BackingField: 0
