@@ -17,6 +17,11 @@
     - 3-1: The sticky hand can be locked in place and 'aimed'
     - 3-2: Items can be thrown rather than simply dropped, and are thrown in the aimed direction
     - 3-3: Some thrown items act as projectiles (eg: thrown rocks, nerf bullets), and can trigger items like targets
+2. Honestly I forgot I wrote them down here, but it stayed subconsciously in my mind a little bit? Which is better than not thinking it through at all, I guess. I don't think there's much I can improve about my breakdown other than remember to actually look at them.
+3. I'm not a fan of complex graphs since they're much harder for me to follow. So I broke down some of my movement logic for the player into smaller subfunctions, then punched my subfunctions into a graph. It's actually a bit helpful for me to have the subfunctions as nodes in a scripting graph because I can dynamically modify the edges at runtime (during testing) to see how it affects the player movement, which I had some trouble with during Milestone 1. If I had done this with C# code, I would have had to recompile between changes, slowly things down drastically.
+<img width="1210" height="445" alt="image" src="https://github.com/user-attachments/assets/a22364f9-0c56-4db4-ab40-32f65eaa6f8a" />
+4. Animator, it's on the player and the enemy (kill the enemy for a secret super special sprite!!!)
+
 
 ## Milestone 3 Devlog
 Milestone 3 Devlog goes here.
