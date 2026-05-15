@@ -151,8 +151,8 @@ public class StickyHandController : MonoBehaviour {
             // loaded gun: fire
             // key: attempt open door
             switch(behaviour) {
-                case HandBehaviour.Move:                
-                    holding.GetComponent<Item>().Use();
+                case HandBehaviour.Move:
+                    holding.GetComponent<Item>().Use();                    
                     break;
                 case HandBehaviour.Aim:
                     if(holding.GetComponent<Gun>() != null) {
@@ -172,11 +172,17 @@ public class StickyHandController : MonoBehaviour {
     private void PickUp(GameObject obj) {
         if (obj.CompareTag("Item")) {
             holding = obj;
+            obj.GetComponent<Item>().itemConsumed += ItemWasConsumed;
 
             // lock object to sticky hand
             obj.transform.parent = handAnchor.transform;
             obj.GetComponent<Item>().PickUp();
         }
+    }
+
+    private void ItemWasConsumed() {
+        Debug.Log("Stickyhand item was consumed!");
+        holding = null;
     }
 
     private void StartAiming() {
@@ -185,9 +191,8 @@ public class StickyHandController : MonoBehaviour {
         if (holding != null) { // reparent held item so it rotates with hand
             holding.transform.rotation = Quaternion.identity;
             holding.transform.parent = transform;
+            holding.GetComponent<Item>().Aim();
         }
-
-        holding.GetComponent<Item>().Aim();
     }
 
     private void StopAiming() {
@@ -215,6 +220,7 @@ public class StickyHandController : MonoBehaviour {
         holding = null;
         obj.transform.SetParent(null);
 
+        obj.GetComponent<Item>().itemConsumed -= ItemWasConsumed;
         obj.GetComponent<Item>().Drop();
         return obj;
     }

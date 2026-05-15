@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,15 +9,16 @@ public class Item : MonoBehaviour {
     [SerializeField] private Vector2 holdOffset;
 
     [Tooltip("Item's primary collider used for collisions with terrain")]
-    [SerializeField] Collider2D col;
+    [SerializeField] protected Collider2D col;
 
     [Tooltip("All colliders, including triggers etc")]
     [field: SerializeField] public Collider2D[] allColliders { get; private set; }
 
-    [SerializeField] private Rigidbody2D rb;
+    [SerializeField] protected Rigidbody2D rb;
 
     [field: SerializeField] public ItemState itemState { get; protected set; }
 
+    public Action itemConsumed;
 
     void Start() {
     }
@@ -35,6 +37,7 @@ public class Item : MonoBehaviour {
         itemState = ItemState.Held;
 
         rb.isKinematic = true;
+        // rb.gravityScale = 0;
         rb.velocity = Vector2.zero;
         rb.angularVelocity = 0f;
         rb.rotation = 0f;
@@ -49,6 +52,7 @@ public class Item : MonoBehaviour {
         itemState = ItemState.Free;
 
         rb.isKinematic = false;
+        // rb.gravityScale = 1;
 
         foreach (Collider2D col in allColliders) {
             col.enabled = true;

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum EnemyStatus { Idle, Pursue, Attack }
+public enum EnemyStatus { Idle, Pursue, Attack, Dead }
 public class Enemy : Character {
 
     [Header("Movement")]
@@ -11,35 +11,54 @@ public class Enemy : Character {
     [SerializeField] private float patrolSpeed;
     [SerializeField] private float pursueSpeed;
 
+    private float groundCheckDistance = 1.5f;
+
     [Header("Combat")]
+    [SerializeField] private GameObject attackOrigin;
     [SerializeField] private LayerMask targetLayer;
     [SerializeField] private float targetSearchDistance;
     [SerializeField] private float attackDistance;
     [SerializeField] private float attackCooldown;
+    [SerializeField] private float dmg = 1;
 
     [Header("Components")]
     [SerializeField] private CapsuleCollider2D col;
+    [SerializeField] private CapsuleCollider2D corpseCol;
 
 
-    private EnemyStatus status;
+    public EnemyStatus status { get; protected set; }
     private float spd;
     private float dir = 1;
     private bool atCliff;
     private bool atWall;
 
+    private bool canAttack = true;
+    private float cooldownTimeRemaining = 0f;
+
+    // SO MANY F* GIZMOS-
     void OnDrawGizmos() {
-        Gizmos.color = Color.red;
+        if (status != EnemyStatus.Dead) {
+            // player (target)check
+            Gizmos.color = Color.yellow;
+            Vector3 cubeCenter = pos.transform.position + transform.right / 2 * targetSearchDistance * dir;
+            Gizmos.DrawWireCube(cubeCenter, new Vector3(targetSearchDistance, col.size.y, 1));
 
-        // player (target)check
-        Gizmos.DrawCube((pos.transform.position + transform.right * targetSearchDistance * dir) / 2, new Vector3(targetSearchDistance, 2, 1));
+            // attackrange
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(attackOrigin.transform.position, new Vector3(2.5f, 1, 1));
 
-        Gizmos.color = Color.blue;
+            // groundcheck
+            Gizmos.color = Color.blue;
+            Gizmos.DrawRay(
+                pos.transform.position,
+                (dir * 0.1f * transform.right + -1 * transform.up).normalized * groundCheckDistance
+            );
 
-        // groundcheck
-        Gizmos.DrawRay(pos.transform.position, (dir * 0.1f * transform.right + -1 * transform.up).normalized * targetSearchDistance);
+            // wallcheck
+            cubeCenter = pos.transform.position + transform.right / 2 * dir;
+            Gizmos.DrawWireCube(cubeCenter, new Vector3(col.size.x, col.size.y, 1));
 
-        // wallcheck
-        Gizmos.DrawCube((pos.transform.position + transform.right * dir * 1f) / 2, new Vector3(1.5f, 2, 1));
+        }
     }
 
     // Start is called before the first frame update
@@ -48,56 +67,94 @@ public class Enemy : Character {
     }
 
     new void Update() {
-        if(TargetCheck()) {
-            status = EnemyStatus.Pursue;
-            spd = pursueSpeed;
-        } else {
-            status = EnemyStatus.Idle;
-            spd = patrolSpeed;
-        }
+        if (status != EnemyStatus.Dead) {
+            if (cooldownTimeRemaining > 0f) {
+                cooldownTimeRemaining -= Time.deltaTime;
+            }
+            else {
+                canAttack = true;
 
-        atCliff = !GroundCheck();
-        atWall = WallCheck();
+                if (TargetCheck()) {
+                    status = EnemyStatus.Pursue;
+                    spd = pursueSpeed;
+
+                    if (DistanceToTarget() < attackDistance && canAttack) {
+                        Attack();
+                    }
+                }
+                else {
+                    status = EnemyStatus.Idle;
+                    spd = patrolSpeed;
+                }
+
+                atCliff = !GroundCheck();
+                atWall = WallCheck();
+            }
+        }
     }
 
     void FixedUpdate() { // make this shit a visual scripting graph MWAHAHAHAHAA!!!
-        if(atCliff || atWall) {
-            TurnAround();
-        } else {
-            Walk();
-        }
+        if (status != EnemyStatus.Dead) {
+            if (atCliff || atWall) {
+                // Debug.Log("enemy should turn around");
+                TurnAround();
+            }
+            else {
+                Walk();
+            }
 
-        rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -1 * patrolSpeed, spd), rb.velocity.y);
+            rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -1 * spd, spd), rb.velocity.y);
+        }
     }
 
     protected override void Die() {
-        if(transform.position.y < GameController.Instance.KillLevel) {
+        if (transform.position.y < GameController.Instance.KillLevel) {
+            // fell off the map
             Destroy(gameObject);
             return;
         }
-
-        animator.SetBool("dead", true);
-        col.enabled = false;        
+        else {
+            status = EnemyStatus.Dead;
+            animator.SetBool("dead", true);
+            col.enabled = false;
+            corpseCol.enabled = true;
+        }
     }
 
     void Walk() {
-        rb.AddForce(transform.right * dir * patrolSpeed, ForceMode2D.Impulse);
+        rb.AddForce(transform.right * dir * spd, ForceMode2D.Impulse);
     }
 
     void TurnAround() {
         dir *= -1;
-        sprite.flipX = !sprite.flipX;
+
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
+        // sprite.flipX = !sprite.flipX;
     }
 
 
     // look for ground ahead to walk on
     bool GroundCheck() {
-        return Physics2D.Raycast(pos.transform.position, (dir * 0.1f * transform.right + -1 * transform.up).normalized, targetSearchDistance, groundLayer);
+        return Physics2D.Raycast(
+            pos.transform.position,
+            (dir * 0.1f * transform.right + -1 * transform.up).normalized,
+            groundCheckDistance,
+            groundLayer
+        );
     }
 
     // look if we're colliding into a wall lmao
     bool WallCheck() {
-        return Physics2D.BoxCast(pos.transform.position, col.size, 0f, dir * transform.right, 0.3f, groundLayer);
+        return Physics2D.BoxCast(
+            pos.transform.position,
+            col.size,
+            0f,
+            dir * transform.right,
+            0.3f,
+            groundLayer
+        );
     }
 
     // is an attackable character in range?
@@ -110,6 +167,24 @@ public class Enemy : Character {
     }
 
     void Attack() {
+        status = EnemyStatus.Attack;
         animator.SetTrigger("attack");
+
+        Collider2D hitTarget = Physics2D.OverlapBox(attackOrigin.transform.position, new Vector2(2.5f, 1), 0f, targetLayer);
+        if (hitTarget) {
+            hitTarget.gameObject.GetComponent<Character>().DealDamage(dmg);
+        }
+
+        canAttack = false;
+        cooldownTimeRemaining = attackCooldown;
+    }
+
+    void OnCollisionEnter2D(Collision2D col) {
+        if (col.gameObject.CompareTag("Projectile")) {
+            Bullet projData = col.gameObject.GetComponent<Bullet>();
+            if (projData) {
+                TakeDamage(projData.dmg);
+            }
+        }
     }
 }

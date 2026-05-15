@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour {
     [SerializeField] private float speed;
+    [field: SerializeField] public float dmg { get; private set; }
     public Vector3 moveDir;
     public int dir;
 

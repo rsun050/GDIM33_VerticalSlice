@@ -252,6 +252,7 @@ MonoBehaviour:
   maxAmmo: -1
   remainingAmmo: -1
   firesAmount: 1
+  fireCooldown: 0
 --- !u!1 &6783600786969641606
 GameObject:
   m_ObjectHideFlags: 0
@@ -268,7 +269,7 @@ GameObject:
   - component: {fileID: 4724455690850165582}
   m_Layer: 0
   m_Name: PlayersBullet
-  m_TagString: Untagged
+  m_TagString: Projectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -282,8 +283,8 @@ Transform:
   m_GameObject: {fileID: 6783600786969641606}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.47, y: 0.147, z: 0}
-  m_LocalScale: {x: 12, y: 12, z: 1}
+  m_LocalPosition: {x: 1.012, y: 0.147, z: 0}
+  m_LocalScale: {x: 4, y: 4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3752277950521977433}
@@ -399,18 +400,18 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.042, y: 0}
   m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
+    border: {x: 0.01, y: 0.01, z: 0.01, w: 0.01}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.01, y: 0.01}
+    oldSize: {x: 0.03, y: 0.03}
     newSize: {x: 0.01, y: 0.01}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.01, y: 0.01}
+  m_Size: {x: 0.115, y: 0.03}
   m_EdgeRadius: 0
 --- !u!114 &7408885003175738621
 MonoBehaviour:
@@ -425,7 +426,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 12
-  dir: {x: 0, y: 0, z: 0}
+  <dmg>k__BackingField: 0
+  moveDir: {x: 0, y: 0, z: 0}
+  dir: 0
 --- !u!120 &4724455690850165582
 LineRenderer:
   serializedVersion: 2
@@ -470,7 +473,7 @@ LineRenderer:
   m_SortingOrder: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: -0.03, y: 0, z: 0}
+  - {x: -0.1, y: 0, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -478,8 +481,8 @@ LineRenderer:
       serializedVersion: 2
       m_Curve:
       - serializedVersion: 3
-        time: 0
-        value: 0.090400636
+        time: 0.061546326
+        value: 0.1129989
         inSlope: 0
         outSlope: 0
         tangentMode: 0

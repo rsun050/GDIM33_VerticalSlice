@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum KeyType { Skeleton, Red, Blue, Green, Yellow, Purple, White }
+public enum KeyType { Skeleton, Red, Blue, Green, Yellow, Purple, White, Pink }
 
 [CreateAssetMenu(fileName = "KeyData", menuName = "ScriptableObjects/KeyData", order = 0)]
 public class KeyData : ScriptableObject {

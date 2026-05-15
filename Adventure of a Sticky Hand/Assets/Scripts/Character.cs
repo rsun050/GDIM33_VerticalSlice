@@ -16,12 +16,17 @@ public abstract class Character : MonoBehaviour {
         }
 	}
 
-	protected void TakeDamage(float amt) {
+	public void TakeDamage(float amt) {
 		remHP -= amt;
 
 		if(remHP <= 0f) {
 			Die();
 		}
+	}
+
+	// alias lol
+	public void DealDamage(float amt) {
+		TakeDamage(amt);
 	}
 
 	protected void Heal(float amt, bool overHealOK = false) {

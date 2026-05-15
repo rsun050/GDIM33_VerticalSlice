@@ -13,7 +13,11 @@ public class Gun : Item {
 	[SerializeField] private float maxAmmo = -1;
 	[SerializeField] private float remainingAmmo = -1;
 	[SerializeField] private float firesAmount = 1;
+	[SerializeField] private float fireCooldown;
 	public int dir { get; private set; }
+
+	private float cooldownTimeRemaining;
+	private bool canFire;
 
 	void OnDrawGizmos() {
 		Gizmos.color = Color.red;
@@ -21,6 +25,16 @@ public class Gun : Item {
 	}
 
 	private void Start() {
+	}
+
+	private void Update() {
+		if(!canFire) {
+			cooldownTimeRemaining -= Time.deltaTime;
+
+			if(cooldownTimeRemaining <= 0) {
+				canFire = true;
+			}
+		}
 	}
 
 	private void LateUpdate() {
@@ -56,15 +70,22 @@ public class Gun : Item {
 	}
 
 	private void Fire() {
-		if (maxAmmo == -1 || remainingAmmo >= firesAmount) {
+		if (canFire && (maxAmmo == -1 || remainingAmmo >= firesAmount)) {
 			for (int i = 0; i < firesAmount; i++) {
 				GameObject bullet = Instantiate(bulletPrefab, transform);
 				bullet.SetActive(true);
 
 				remainingAmmo--;
 			}
+
+			GoOnCooldown();
+			SetAmmoUI();
 		}
-		SetAmmoUI();
+	}
+
+	private void GoOnCooldown() {
+		cooldownTimeRemaining = fireCooldown;
+		canFire = false;
 	}
 	
 	public void SetAmmoUI() {

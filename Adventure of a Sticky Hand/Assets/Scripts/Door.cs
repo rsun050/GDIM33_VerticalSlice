@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Door : Actuatable {
-	[SerializeField] private SpriteRenderer sprite;
-	[SerializeField] private Collider2D col;
-	[SerializeField] private AudioSource sfx;
+	[SerializeField] protected SpriteRenderer sprite;
+	[SerializeField] protected Collider2D col;
+	[SerializeField] protected AudioSource sfx;
 	
     void Start() {
         
