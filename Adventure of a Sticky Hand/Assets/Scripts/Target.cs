@@ -21,8 +21,8 @@ public class Target : Actuator {
             Fall();
 
             // activate thing this triggers (if any)
-            if (actuatee != null) {
-                actuatee.Switch();
+            foreach(Actuatable actuatee in actuatees) {
+                actuatee.Switch();                
             }
 
             // vfx , sfx

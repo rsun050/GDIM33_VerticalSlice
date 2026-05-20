@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Door : Actuatable {
-	[SerializeField] protected SpriteRenderer sprite;
-	[SerializeField] protected Collider2D col;
+	[SerializeField] protected SpriteRenderer[] sprites;
+	[SerializeField] protected Collider2D[] cols;
 	[SerializeField] protected AudioSource sfx;
 	
     void Start() {
@@ -17,8 +17,14 @@ public class Door : Actuatable {
     }
 
 	public override void Switch() {
-		sprite.enabled = !sprite.enabled;
-		col.enabled = !col.enabled;
+		foreach(SpriteRenderer sprite in sprites) {
+			sprite.enabled = !sprite.enabled;
+		}
+
+		foreach(Collider2D col in cols) {
+			col.enabled = !col.enabled;		
+		}
+		
 		if(sfx != null) { sfx.Play(); }
 	}
 }

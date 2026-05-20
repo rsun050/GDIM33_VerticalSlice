@@ -22,16 +22,21 @@ public class PlayerController : Character {
 
     [Header("Pain")] // me too
     [SerializeField] private LayerMask groundPainLayer;
+    [SerializeField] private float stunTime; // how long player is stunned when taking damage
+    private float stunTimeRemaining;
     public event Action playerDies;
 
-    // Start is called before the first frame update
-    void Start() {
-
+    protected override void Start() {
+        base.Start();
+        stunTimeRemaining = 0f;
     }
 
     // Update is called once per frame
     new void Update() {
         base.Update();
+
+        GetInputs();
+        UpdateStun();
         DebugText();
     }
 
@@ -112,6 +117,18 @@ public class PlayerController : Character {
         }
     }
 
+    public override void TakeDamage(float amt) {
+        if(canBeHurt) {
+            animator.SetTrigger("hurt");
+            
+            if(!Stunned()) {
+                Stun();
+            }
+
+            base.TakeDamage(amt);            
+        }
+    }
+
     protected override void Die() {
         // TODO REFACTOR THIS SH*
         Debug.Log("Player die invoked");
@@ -119,6 +136,25 @@ public class PlayerController : Character {
 
         // rb.freezeRotation = false;
         // rb.excludeLayers = LayerMask.;
+    }
+
+    private void Stun() {
+        canBeHurt = false;
+        stunTimeRemaining = stunTime;
+        rb.velocity = Vector2.zero;
+    }
+
+    public bool Stunned() {
+        return stunTimeRemaining > 0f;
+    }
+
+    private void UpdateStun() {
+        if(stunTimeRemaining > 0f) {
+            stunTimeRemaining -= Time.deltaTime;
+            if(stunTimeRemaining <= 0f) {
+                canBeHurt = true;
+            }
+        }
     }
 
     private void DebugText() {

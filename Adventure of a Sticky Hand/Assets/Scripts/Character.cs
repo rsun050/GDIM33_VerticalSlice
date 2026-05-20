@@ -7,8 +7,15 @@ public abstract class Character : MonoBehaviour {
     [SerializeField] protected SpriteRenderer sprite;
 
 	[Header("")]
+	[SerializeField] protected bool canBeHurt = true;
 	[SerializeField] protected float maxHP;
-	protected float remHP;
+	[Tooltip("Leave as -1 to start at maxHP")] [SerializeField] protected float remHP = -1;
+
+	protected virtual void Start() {
+		if(remHP == -1) {
+			remHP = maxHP;
+		}
+	}
 
 	protected void Update() {
 		if(transform.position.y < GameController.Instance.KillLevel) {
@@ -16,8 +23,9 @@ public abstract class Character : MonoBehaviour {
         }
 	}
 
-	public void TakeDamage(float amt) {
+	public virtual void TakeDamage(float amt) {
 		remHP -= amt;
+		Debug.Log($"{gameObject.name} ouch ({amt} dmg, {remHP} remaining)");
 
 		if(remHP <= 0f) {
 			Die();
@@ -36,3 +44,9 @@ public abstract class Character : MonoBehaviour {
 
 	protected abstract void Die();
 }
+
+/*
+recall:
+abstract = child must implement (nothing given)
+virtual = child may use what's given, or override
+*/

@@ -124,14 +124,14 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: wal
     originalName: 
-    pivot: {x: 0.75, y: 0}
+    pivot: {x: 0.5, y: 0}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     rect:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 600
+      width: 1300
       height: 900
     spriteID: 49fcb7fdb56b16f49870decb1ed2309d
     spriteBone: []
@@ -162,7 +162,7 @@ ScriptedImporter:
       cellRect:
         x: 0
         y: 0
-        width: 600
+        width: 1300
         height: 900
       spriteId: 49fcb7fdb56b16f49870decb1ed2309d
     linkedCells: []
@@ -183,5 +183,5 @@ ScriptedImporter:
   generatePhysicsShape: 0
   secondarySpriteTextures: []
   spritePackingTag: 
-  canvasSize: {x: 900, y: 900}
-  previousTextureSize: {x: 1024, y: 1024}
+  canvasSize: {x: 1300, y: 900}
+  previousTextureSize: {x: 2048, y: 1024}

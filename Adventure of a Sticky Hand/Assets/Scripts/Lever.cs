@@ -29,6 +29,8 @@ public class Lever : Actuator {
         currSprite = (currSprite + 1) % sprites.Length;
         sprite.sprite = sprites[currSprite];
 
-        actuatee.gameObject.SetActive(!actuatee.gameObject.activeInHierarchy);
+        foreach(Actuatable actuatee in actuatees) {
+            actuatee.gameObject.SetActive(!actuatee.gameObject.activeInHierarchy);        
+        }
     }
 }

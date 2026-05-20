@@ -144,7 +144,7 @@ TextureImporter:
         width: 100
         height: 150
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -165,7 +165,7 @@ TextureImporter:
         width: 100
         height: 150
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -186,7 +186,7 @@ TextureImporter:
         width: 100
         height: 150
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -207,7 +207,7 @@ TextureImporter:
         width: 100
         height: 150
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -215,6 +215,27 @@ TextureImporter:
       bones: []
       spriteID: 7ccb99506a7986a46874d4769b1d624b
       internalID: 1245460394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: placeholder_animation_4
+      rect:
+        serializedVersion: 2
+        x: 100
+        y: 0
+        width: 100
+        height: 150
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6006c023f37af8c498a411323cfe79b4
+      internalID: 521885159
       vertices: []
       indices: 
       edges: []
@@ -234,6 +255,7 @@ TextureImporter:
       placeholder_animation_1: -1303663726
       placeholder_animation_2: 1010667864
       placeholder_animation_3: 1245460394
+      placeholder_animation_4: 521885159
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

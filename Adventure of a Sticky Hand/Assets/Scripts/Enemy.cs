@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum EnemyStatus { Idle, Pursue, Attack, Dead }
+public enum EnemyStatus { Idle, Walk, Pursue, Attack, AttackCooldown, Dead }
 public class Enemy : Character {
 
     [Header("Movement")]
@@ -16,9 +16,9 @@ public class Enemy : Character {
     [Header("Combat")]
     [SerializeField] private GameObject attackOrigin;
     [SerializeField] private LayerMask targetLayer;
-    [SerializeField] private float targetSearchDistance;
-    [SerializeField] private float attackDistance;
-    [SerializeField] private float attackCooldown;
+    [SerializeField] private float targetSearchDistance; // dist at which enemy sees and will start to pursue
+    [SerializeField] private float attackDistance; // dist at which enemy is close enough to attack the player
+    [SerializeField] private float attackCooldown; // time between attacks
     [SerializeField] private float dmg = 1;
 
     [Header("Components")]
@@ -26,14 +26,14 @@ public class Enemy : Character {
     [SerializeField] private CapsuleCollider2D corpseCol;
 
 
+    [SerializeField] private EnemyStatus startStatus = EnemyStatus.Walk;
     public EnemyStatus status { get; protected set; }
     private float spd;
     private float dir = 1;
     private bool atCliff;
     private bool atWall;
 
-    private bool canAttack = true;
-    private float cooldownTimeRemaining = 0f;
+    private float attackCooldownTimeRemaining = 0f;
 
     // SO MANY F* GIZMOS-
     void OnDrawGizmos() {
@@ -45,7 +45,7 @@ public class Enemy : Character {
 
             // attackrange
             Gizmos.color = Color.red;
-            Gizmos.DrawWireCube(attackOrigin.transform.position, new Vector3(2.5f, 1, 1));
+            Gizmos.DrawWireCube(attackOrigin.transform.position, new Vector3(attackDistance, col.size.y/1.5f, 1));
 
             // groundcheck
             Gizmos.color = Color.blue;
@@ -62,48 +62,88 @@ public class Enemy : Character {
     }
 
     // Start is called before the first frame update
-    void Start() {
-
+    protected override void Start() {
+        base.Start();
+        status = startStatus;
+        spd = patrolSpeed;
     }
 
+    /*
+        IDLE: not moving
+        WALK: normal patrolling behaviour
+        PURSUE: target in sight, attempt to move into attack range
+        ATTACK: in attack range, attack
+        ATTACK_COOLDOWN: recently attacked, waiting to attack again
+        DEAD: killed
+
+        ANY -> DEAD: killed or falls into void
+
+        IDLE -> PURSUE: sees target
+        WALK -> PURSUE: ditto
+
+        PURSUE -> WALK: loses target
+        PURSUE -> ATTACK: gets in attack range
+
+        ATTACK -> ATTACK_COOLDOWN
+
+        ATTACK_COOLDOWN -> PURSUE: cooldown ends
+    */
+    // NO ACTUAL MOVEMENT (RB) CODE
     new void Update() {
         if (status != EnemyStatus.Dead) {
-            if (cooldownTimeRemaining > 0f) {
-                cooldownTimeRemaining -= Time.deltaTime;
-            }
-            else {
-                canAttack = true;
-
-                if (TargetCheck()) {
-                    status = EnemyStatus.Pursue;
-                    spd = pursueSpeed;
-
-                    if (DistanceToTarget() < attackDistance && canAttack) {
-                        Attack();
+            switch(status) {
+                case EnemyStatus.Idle:
+                case EnemyStatus.Walk: {
+                    if (TargetCheck()) {
+                        Pursue();
                     }
+                    break;
                 }
-                else {
-                    status = EnemyStatus.Idle;
-                    spd = patrolSpeed;
+                case EnemyStatus.Pursue: {
+                    // Debug.Log("PURSUING PLAYER");
+                    if(TargetCheck()) {
+                        if (InAttackRange() && !OnAttackCooldown()) {
+                            // Debug.Log("ATTACK!!!");
+                            Attack();
+                        }                            
+                    } else { // lost target
+                        status = EnemyStatus.Walk;
+                        spd = patrolSpeed;
+                    }
+                    break;
                 }
+                case EnemyStatus.AttackCooldown: {
+                    attackCooldownTimeRemaining -= Time.deltaTime;
 
-                atCliff = !GroundCheck();
-                atWall = WallCheck();
+                    if(!OnAttackCooldown()) {
+                        status = EnemyStatus.Pursue;
+                    }
+                    break;
+                }
             }
+            
+            RaycastHit2D _groundCheck = GroundCheck();
+            atCliff = !_groundCheck || _groundCheck.collider.gameObject.CompareTag("PainGround");
+            atWall = WallCheck();
         }
     }
 
+    // movement
     void FixedUpdate() { // make this shit a visual scripting graph MWAHAHAHAHAA!!!
-        if (status != EnemyStatus.Dead) {
-            if (atCliff || atWall) {
-                // Debug.Log("enemy should turn around");
-                TurnAround();
-            }
-            else {
-                Walk();
-            }
+        switch(status) {
+            case EnemyStatus.Pursue:
+            case EnemyStatus.Walk: {
+                if (atCliff || atWall) {
+                    // Debug.Log("enemy should turn around");
+                    TurnAround();
+                }
+                else {
+                    Walk();
+                }
 
-            rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -1 * spd, spd), rb.velocity.y);
+                rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -1 * spd, spd), rb.velocity.y);
+                break;                    
+            }
         }
     }
 
@@ -125,6 +165,11 @@ public class Enemy : Character {
         rb.AddForce(transform.right * dir * spd, ForceMode2D.Impulse);
     }
 
+    void Pursue() {
+        status = EnemyStatus.Pursue;
+        spd = pursueSpeed;
+    }
+
     void TurnAround() {
         dir *= -1;
 
@@ -134,9 +179,8 @@ public class Enemy : Character {
         // sprite.flipX = !sprite.flipX;
     }
 
-
     // look for ground ahead to walk on
-    bool GroundCheck() {
+    RaycastHit2D GroundCheck() {
         return Physics2D.Raycast(
             pos.transform.position,
             (dir * 0.1f * transform.right + -1 * transform.up).normalized,
@@ -166,17 +210,32 @@ public class Enemy : Character {
         return Vector2.Distance(pos.transform.position, GameController.Instance.Player.transform.position);
     }
 
+    bool InAttackRange() {
+        Collider2D hitTarget = Physics2D.OverlapBox(attackOrigin.transform.position, new Vector2(2.5f, 1), 0f, targetLayer);
+        return DistanceToTarget() < attackDistance;
+    }
+
     void Attack() {
+        Debug.Log("attacking");
         status = EnemyStatus.Attack;
         animator.SetTrigger("attack");
+        rb.velocity = Vector2.zero;
 
         Collider2D hitTarget = Physics2D.OverlapBox(attackOrigin.transform.position, new Vector2(2.5f, 1), 0f, targetLayer);
         if (hitTarget) {
             hitTarget.gameObject.GetComponent<Character>().DealDamage(dmg);
         }
 
-        canAttack = false;
-        cooldownTimeRemaining = attackCooldown;
+        GoOnAttackCooldown();
+    }
+
+    bool OnAttackCooldown() {
+        return attackCooldownTimeRemaining > 0f;
+    }
+
+    void GoOnAttackCooldown() {
+        status = EnemyStatus.AttackCooldown;
+        attackCooldownTimeRemaining = attackCooldown;        
     }
 
     void OnCollisionEnter2D(Collision2D col) {
