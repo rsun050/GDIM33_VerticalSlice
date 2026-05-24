@@ -139,7 +139,7 @@ public class StickyHandController : MonoBehaviour {
     private void LClick() {
         if (holding == null) { // attempt pickup/interact
             List<Collider2D> gameObjsInContact = new List<Collider2D>(touching.Keys);
-            Debug.Log($"LCLICK: there are {gameObjsInContact.Count} items to interact w/");
+            // Debug.Log($"LCLICK: there are {gameObjsInContact.Count} items to interact w/");
             if (gameObjsInContact.Count < 1) return;
 
             gameObjsInContact.Sort(CompareGameObjs);

@@ -37,6 +37,11 @@ public abstract class Character : MonoBehaviour {
 		TakeDamage(amt);
 	}
 
+	public void Kill() {
+		remHP = 0f;
+		Die();
+	}
+
 	protected void Heal(float amt, bool overHealOK = false) {
 		remHP += amt;
 		if(!overHealOK) { remHP = Mathf.Min(remHP, maxHP); }
