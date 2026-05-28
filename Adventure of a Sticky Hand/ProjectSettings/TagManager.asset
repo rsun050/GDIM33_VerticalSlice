@@ -24,8 +24,8 @@ TagManager:
   - Target
   - Enemy
   - Door
-  - 
-  - 
+  - ItemOutline
+  - PlatformOutline
   - 
   - 
   - 
