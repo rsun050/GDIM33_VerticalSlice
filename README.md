@@ -23,9 +23,12 @@
 4. Animator, it's on the player and the enemy (kill the enemy for a secret super special sprite!!!)
 
 ## Milestone 3 Devlog
-1. The color part is not that complicated, just a "multiply over time". The annoying part was the Sample Texture 2D thinking my very transparent sprite was very un-transparent for some reason, so I had to use the Alpha channel.
+1. My shader gives a pinkish pulse to interactable items that the player is close enough to interact with. The color part is not that complicated, just a "multiply texture using this color over time". The annoying part was the Sample Texture 2D thinking my very transparent sprite was very un-transparent for some reason, so I had to use the Alpha channel to make sure transparent pixels didn't show up as black pixels.
 <img width="1920" height="1080" alt="2026-05-28 22-58-14" src="https://github.com/user-attachments/assets/5fc56ffb-5b9c-4558-90f5-f29e9800cc71" />
 
+2. I improved the gun - it should no longer fire backwards at weird angles. I also received feedback that putting the keyhole not on the door makes it appear that the keyhole must be interacted with rather than the door itself, so I moved the keyhole onto the door.
+
+3. I added level transitions - rather than the game being one big level, the player can now move between levels, which is the most important part to add to a 2D platformer, 'closing the gameplay loop' by allowing a player to continuously beat levels and move on. In other news, an enemy now exists and is a tangible threat, attacking the player. It can also be killed. I also added a DOOM-style crusher, because those are cool. It also kills the player.
 
 ## Milestone 4 Devlog
 Milestone 4 Devlog goes here.
