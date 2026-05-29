@@ -22,9 +22,11 @@
 <img width="1210" height="445" alt="image" src="https://github.com/user-attachments/assets/a22364f9-0c56-4db4-ab40-32f65eaa6f8a" />
 4. Animator, it's on the player and the enemy (kill the enemy for a secret super special sprite!!!)
 
-
 ## Milestone 3 Devlog
-Milestone 3 Devlog goes here.
+1. The color part is not that complicated, just a "multiply over time". The annoying part was the Sample Texture 2D thinking my very transparent sprite was very un-transparent for some reason, so I had to use the Alpha channel.
+<img width="1920" height="1080" alt="2026-05-28 22-58-14" src="https://github.com/user-attachments/assets/5fc56ffb-5b9c-4558-90f5-f29e9800cc71" />
+
+
 ## Milestone 4 Devlog
 Milestone 4 Devlog goes here.
 ## Final Devlog
