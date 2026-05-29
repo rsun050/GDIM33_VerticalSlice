@@ -9,6 +9,8 @@ TagManager:
   - Projectile
   - Enemy
   - Clickable
+  - LevelGoal
+  - LevelStart
   layers:
   - Default
   - TransparentFX
@@ -26,7 +28,7 @@ TagManager:
   - Door
   - ItemOutline
   - PlatformOutline
-  - 
+  - Checkpoint
   - 
   - 
   - 
