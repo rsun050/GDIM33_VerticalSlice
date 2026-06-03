@@ -660,6 +660,10 @@ PrefabInstance:
       propertyPath: debugText
       value: 
       objectReference: {fileID: 1558569958}
+    - target: {fileID: 4949897458917658543, guid: a1d05328a13bb2440a58104b84b897e1, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: d377abf39e2d40941851d4c2abacc4ad, type: 2}
     - target: {fileID: 6107176803136378491, guid: a1d05328a13bb2440a58104b84b897e1, type: 3}
       propertyPath: m_Name
       value: Player

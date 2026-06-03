@@ -37,6 +37,8 @@ public class StickyHandController : MonoBehaviour {
             Destroy(holding);
             holding = null;
         }
+
+        GameController.Instance.NextLevelE += NextLevelRemoveItems;
     }
 
     void OnDrawGizmos() {
@@ -140,15 +142,15 @@ public class StickyHandController : MonoBehaviour {
 
     // LClick: trigger actuators, pickup items
     private void LClick() {
-        if (holding == null) { // attempt pickup/interact
-            List<Collider2D> gameObjsInContact = new List<Collider2D>(touching.Keys);
+        List<Collider2D> gameObjsInContact = new List<Collider2D>(touching.Keys);
+        if(gameObjsInContact.Count > 0) gameObjsInContact.Sort(CompareGameObjs);
+
+        if (holding == null || (gameObjsInContact.Count > 0 && gameObjsInContact[0].CompareTag("Clickable"))) { // attempt pickup/interact
             // Debug.Log($"LCLICK: there are {gameObjsInContact.Count} items to interact w/");
             if (gameObjsInContact.Count < 1) return;
 
-            gameObjsInContact.Sort(CompareGameObjs);
             Interact(touching[gameObjsInContact[0]]);
-        }
-        else {
+        } else {
             // attempt use
             // use cases
             // ball, block, empty gun: throw it
@@ -241,6 +243,12 @@ public class StickyHandController : MonoBehaviour {
         obj.GetComponent<Item>().Drop();
         SceneManager.MoveGameObjectToScene(obj, SceneManager.GetActiveScene());
         return obj;
+    }
+
+    private void NextLevelRemoveItems() {
+        if(holding) {
+            Drop();
+        }
     }
 
     // custom comparator: want closest gameobj

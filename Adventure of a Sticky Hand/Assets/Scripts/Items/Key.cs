@@ -8,10 +8,10 @@ public class Key : Item {
 
     void OnDrawGizmos() {
         Gizmos.color = Color.green;
-        Gizmos.DrawWireCube(
-            transform.position + new Vector3(col.offset.x, col.offset.y, 0),
-            new Vector3(((BoxCollider2D)col).size.x, ((BoxCollider2D)col).size.y, 1)
-        );
+        // Gizmos.DrawWireCube(
+        //     transform.position,
+        //     new Vector3(((BoxCollider2D)col).size.x, ((BoxCollider2D)col).size.y, 1)
+        // );
     }
 
     void OnCollisionEnter2D(Collision2D collision) {

@@ -12,18 +12,19 @@ public class GameController : MonoBehaviour {
 
 	[NonSerialized] public GameObject RespawnPoint;
 	public Action<GameObject> RespawnPointChanged;
+	public Action NextLevelE;
 
 	[field: SerializeField] public LevelData CurrentLevel { get; private set; }
 	[field: SerializeField] public Color DefaultInactiveCheckpointColor { get; private set; } = Color.red;
 	[field: SerializeField] public Color DefaultActiveCheckpointColor { get; private set; } = Color.green;
 
-	private bool DEBUG = false;
+	public bool DEBUG = false;
 
 	public void Awake() {
 		// Cursor.visible = false;
-		#if UNITY_EDITOR
-			DEBUG = true;
-		#endif
+		// #if UNITY_EDITOR
+		// 	DEBUG = true;
+		// #endif
 
 
 		if (Instance != null && Instance != this) {
@@ -60,12 +61,16 @@ public class GameController : MonoBehaviour {
 	}
 
 	private void GotoNextLevel() {
+		KillLevel = Mathf.Min(KillLevel, CurrentLevel.NextLevel.KillLevel);
+		// Player.INTRANSITION = true;
 		StartCoroutine(NextLevel());
 	}
 
 	private IEnumerator NextLevel() {
 		if (CurrentLevel.NextLevel) { // dont do anything if this is the last level
+			// Debug.Log($"GOING TO NEXT LEVEL FROM {CurrentLevel.SceneName} TO {CurrentLevel.NextLevel.SceneName}");
 			CurrentLevel = CurrentLevel.NextLevel;
+			
 			AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(CurrentLevel.SceneName);
 
 			while (!asyncLoad.isDone) {
@@ -73,6 +78,7 @@ public class GameController : MonoBehaviour {
 			}
 
 			PostLevelLoad();
+			NextLevelE?.Invoke();
 		}
 	}
 
@@ -84,10 +90,6 @@ public class GameController : MonoBehaviour {
 		RespawnPoint = levelStart;
 		RespawnPointChanged?.Invoke(levelStart);
 
-		if(!DEBUG) {
-			Player.transform.position = levelStart.transform.position;
-		}
-		Player.FullHeal();
 		KillLevel = CurrentLevel.KillLevel;
 	}
 }

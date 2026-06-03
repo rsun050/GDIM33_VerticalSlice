@@ -19,6 +19,7 @@ public abstract class Character : MonoBehaviour {
 
 	protected void Update() {
 		if(transform.position.y < GameController.Instance.KillLevel) {
+			Debug.Log($"{gameObject.name} FELL OOB: {transform.position.y} VS {GameController.Instance.KillLevel}");
             Die();
         }
 	}

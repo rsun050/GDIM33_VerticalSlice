@@ -25,9 +25,11 @@ public class PlayerController : Character {
     [SerializeField] private float stunTime; // how long player is stunned when taking damage
     private float stunTimeRemaining;
     public event Action playerDies;
+    // public bool INTRANSITION = false;
 
     protected override void Start() {
         base.Start();
+        GameController.Instance.NextLevelE += OnNewLevel;
         stunTimeRemaining = 0f;
     }
 
@@ -83,7 +85,17 @@ public class PlayerController : Character {
             }
         }
 
-        rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -1 * speed, speed), rb.velocity.y);
+        // rb.velocity = new Vector2(Mathf.Clamp(rb.velocity.x, -1 * speed, speed), rb.velocity.y);
+
+        float velX = rb.velocity.x;
+        float newVelX = Mathf.SmoothDamp(
+            rb.velocity.x,
+            speed * horizDir,
+            ref velX,
+            0.3f
+        );
+        rb.velocity = new Vector2(Mathf.Clamp(newVelX, -1 * speed, speed), rb.velocity.y);
+
         animator.SetBool("walking", walking);
     }
 
@@ -122,7 +134,7 @@ public class PlayerController : Character {
     }
 
     public override void TakeDamage(float amt) {
-        if(canBeHurt) {
+        if(/*!INTRANSITION && */canBeHurt) {
             animator.SetTrigger("hurt");
             
             if(!Stunned()) {
@@ -134,12 +146,10 @@ public class PlayerController : Character {
     }
 
     protected override void Die() {
-        // TODO REFACTOR THIS SH*
-        Debug.Log("Player die invoked");
-        playerDies?.Invoke();
-
-        // rb.freezeRotation = false;
-        // rb.excludeLayers = LayerMask.;
+        // if(!INTRANSITION) {
+            Debug.Log("Player die invoked");
+            playerDies?.Invoke();    
+        // }
     }
     private void Stun() {
         canBeHurt = false;
@@ -162,5 +172,15 @@ public class PlayerController : Character {
 
     private void DebugText() {
         debugText.text = $"canJump: {canJump}\njumpPressed: {jumpPressed}\nspd: {rb.velocity}";
+    }
+
+    private void OnNewLevel() {
+        if(!GameController.Instance.DEBUG) {
+            // Debug.Log($"NEW LEVEL MOVING PLAYER TO {GameObject.FindWithTag("LevelStart").transform.position}");
+        	transform.position = GameObject.FindWithTag("LevelStart").transform.position;        
+        }
+	
+        // INTRANSITION = false;
+        FullHeal();
     }
 }
