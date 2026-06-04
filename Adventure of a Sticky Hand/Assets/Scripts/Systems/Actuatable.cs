@@ -20,4 +20,9 @@ public class Actuatable : MonoBehaviour
     public virtual void Switch() {
         
     }
+
+    // something that can be triggered once, possibly over and over (eg: like an animation trigger, or a morse code thingy)
+    public virtual void Actuate() {
+        
+    }
 }

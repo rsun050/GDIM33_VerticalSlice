@@ -11,6 +11,7 @@ TagManager:
   - Clickable
   - LevelGoal
   - LevelStart
+  - ProjectileItem
   layers:
   - Default
   - TransparentFX

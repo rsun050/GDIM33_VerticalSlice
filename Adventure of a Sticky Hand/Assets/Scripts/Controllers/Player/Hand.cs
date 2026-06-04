@@ -13,7 +13,7 @@ public class Hand : MonoBehaviour {
 			if(!GameController.Instance.StickyHand.touching.ContainsKey(col)) {
 				GameController.Instance.StickyHand.touching.Add(col, col.gameObject.transform.parent.gameObject);
 				col.gameObject.transform.parent.gameObject.layer = LayerMask.NameToLayer(LayerMask.LayerToName(col.gameObject.transform.parent.gameObject.layer) + "Outline");
-				// Debug.Log($"can interact with {col.gameObject.transform.parent.gameObject.name}");				
+				// Debug.Log($"can interact with {col.gameObject.transform.parent.gameObject.name}");
 			}
 		}
 	}
@@ -29,7 +29,7 @@ public class Hand : MonoBehaviour {
 				// Debug.Log($"hand trigger exit: gameobj {col.gameObject.name} on layer {col.gameObject.layer}, parent layer {layerName}");
 
 				col.gameObject.transform.parent.gameObject.layer = LayerMask.NameToLayer(layerName.Substring(0, layerName.Length - 7));
-				// Debug.Log($"can NOT interact with {col.gameObject.transform.parent.gameObject.name}");				
+				// Debug.Log($"can NOT interact with {col.gameObject.transform.parent.gameObject.name}");
 			}
 		}
 	}
