@@ -30,9 +30,17 @@
 
 3. I added level transitions - rather than the game being one big level, the player can now move between levels, which is the most important part to add to a 2D platformer, 'closing the gameplay loop' by allowing a player to continuously beat levels and move on. In other news, an enemy now exists and is a tangible threat, attacking the player. It can also be killed. I also added a DOOM-style crusher, because those are cool. It also kills the player.
 
-## Milestone 4 Devlog
-Milestone 4 Devlog goes here.
 ## Final Devlog
-Final Devlog goes here.
+1. Core gameplay loop: beat a level and move to the next. Levels get more complex as the player proceeds to them, starting from simple movement to puzzle mechanics with the picking up and using of items, and enemies and hazards appear in later levels. This illustrates the various mechanics of the game and how the ramping up of difficulty might look in the final game with more content.
+
+2. My rendering effect is activated when the player's sticky hand is close enough to (touches the Collider2D trigger of) an item that they can pick up or interact with. It highlights the item of interest with a glowing pinkish flash that repeats itself until the player's hand moves away again. The flash is triggered by moving the item onto a layer called ItemOutline. This was actually an interesting problem for me since I also needed the layer for tracking item collisions with the player's sticky hand, so there is a layer called Item (no flash) and another called ItemOutline (with flash), both of which interact with the player's hand.
+<img width="1920" height="1080" alt="2026-05-28 22-58-14" src="https://github.com/user-attachments/assets/5fc56ffb-5b9c-4558-90f5-f29e9800cc71" />
+
+3. When breaking a project down, I think of the important parts - for this project, it the big parts were the player's sticky hand, the items, and the interactable systems (levers, targets, and the things that they activate). I plan out what they do, what they need to do what they do, and how they interact with each other.
+
+  - I think I do plan to use the task breakdown system in future projects, as it's like making a plan before you act, and it will probably serve as a good checklist during development, and a reference afterwards to review what went well, what went poorly.
+  - Breaking down a project into smaller steps often makes me get a better picture of the scope, since I can see all (or at least more of) the work that will need to go into the project. This usually makes me realize if I'm overscoping or not.
+  - I put thought into the systems, but my view was too broad, and some of the programming details fell into the cracks, which led to some hardcoding of the systems, which kind of sucked. In the future I'd want to go into more detail on the design of my classes, variables, and functions, although I also worry about then getting too lost in the details before even starting development.
+
 ## Open-source assets
-- Cite any external assets used here!
+Sounds and music: scratch.mit.edu, bfxr, Kevin Macleod
